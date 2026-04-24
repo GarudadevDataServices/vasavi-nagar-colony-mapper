@@ -8,8 +8,6 @@ import { X } from 'lucide-react';
 const MapView = ({ data, selectedFid, onPlotClick, baseLayer, updateFeature, selectedFeature }) => {
   const mapContainer = useRef(null);
   const map = useRef(null);
-  const popupRef = useRef(null);
-  const [popupContainer, setPopupContainer] = useState(null);
 
   useEffect(() => {
     if (!mapContainer.current) return;
@@ -105,34 +103,10 @@ const MapView = ({ data, selectedFid, onPlotClick, baseLayer, updateFeature, sel
           
           onPlotClick(fid);
 
-          if (popupRef.current) popupRef.current.remove();
-
-          const el = document.createElement('div');
-          // Use a very specific class to avoid any layout issues
-          el.style.width = '380px';
-          el.style.maxWidth = '90vw';
-          setPopupContainer(el);
-
-          popupRef.current = new maplibregl.Popup({ 
-            closeButton: false, 
-            maxWidth: 'none',
-            anchor: 'bottom',
-            offset: [0, -15]
-          })
-            .setLngLat(coords)
-            .setDOMContent(el)
-            .addTo(map.current);
-            
-          popupRef.current.on('close', () => {
-            onPlotClick(null);
-            setPopupContainer(null);
-          });
-          
-          // Move map so the click is in the bottom center, giving room for popup above
+          // Move map so the click is centered
           map.current.flyTo({
             center: coords,
-            zoom: 18,
-            padding: { top: 200 } 
+            zoom: 18
           });
         });
 
@@ -168,25 +142,10 @@ const MapView = ({ data, selectedFid, onPlotClick, baseLayer, updateFeature, sel
     if (map.current && map.current.getLayer('plots-highlight')) {
       map.current.setFilter('plots-highlight', ['==', ['get', 'fid'], selectedFid || -1]);
     }
-    if (!selectedFid && popupRef.current) popupRef.current.remove();
   }, [selectedFid]);
 
   return (
-    <div ref={mapContainer} style={{ width: '100%', height: '100%', position: 'absolute', inset: 0, background: '#f0f0f0' }}>
-      {popupContainer && createPortal(
-        <div className="modern-card animate-fade-in" style={{ width: '380px', maxWidth: '90vw' }}>
-          <div className="modern-card-header">
-            <button onClick={() => popupRef.current?.remove()} className="modern-close-btn">
-              <X size={20} />
-            </button>
-          </div>
-          <div className="modern-card-content custom-scrollbar">
-            <PropertyForm feature={selectedFeature} onUpdate={updateFeature} />
-          </div>
-        </div>,
-        popupContainer
-      )}
-    </div>
+    <div ref={mapContainer} style={{ width: '100%', height: '100%', position: 'absolute', inset: 0, background: '#f0f0f0' }} />
   );
 };
 

@@ -1,11 +1,26 @@
 /* Vasavi Nagar Colony Mapper - Global CSS */
 :root {
   --primary: #3b82f6;
-  --bg-app: #f9fafb;
+  --primary-hover: #2563eb;
+  --primary-soft: rgba(59, 130, 246, 0.1);
+  --bg-app: #f1f5f9;
+  --surface: #ffffff;
+  --text-main: #1e293b;
+  --text-muted: #64748b;
+  --border-light: #f1f5f9;
+  --radius-xl: 24px;
+  --radius-lg: 16px;
+  --radius-md: 12px;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Inter', sans-serif; overflow: hidden; background: var(--bg-app); }
+body { 
+  font-family: 'Inter', system-ui, -apple-system, sans-serif; 
+  overflow: hidden; 
+  background: var(--bg-app);
+  color: var(--text-main);
+  -webkit-font-smoothing: antialiased;
+}
 
 /* MapLibre Popup Overrides */
 .maplibregl-popup-content {
@@ -18,40 +33,46 @@ body { font-family: 'Inter', sans-serif; overflow: hidden; background: var(--bg-
 
 /* The actual Card UI */
 .modern-card {
-  background: white;
-  border-radius: 24px;
-  box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.4), 0 18px 36px -18px rgba(0, 0, 0, 0.3);
+  background: var(--surface);
+  border-radius: var(--radius-xl);
+  box-shadow: 
+    0 20px 25px -5px rgba(0, 0, 0, 0.1), 
+    0 10px 10px -5px rgba(0, 0, 0, 0.04),
+    0 0 0 1px rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border: 1px solid rgba(0,0,0,0.1);
-  width: 380px;
+  width: 100%;
 }
 
 .modern-card-header {
   position: absolute;
-  top: 12px;
-  right: 12px;
+  top: 16px;
+  right: 16px;
   z-index: 100;
 }
 
 .modern-close-btn {
-  width: 32px;
-  height: 32px;
-  background: rgba(255,255,255,0.9);
-  backdrop-filter: blur(4px);
+  width: 36px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(12px);
   border-radius: 50%;
-  border: 1px solid #eee;
+  border: 1px solid rgba(255, 255, 255, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-  color: #333;
+  color: white;
+  transition: all 0.2s;
+}
+.modern-close-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(90deg);
 }
 
 .modern-card-content {
-  max-height: 70vh;
+  max-height: 80vh;
   overflow-y: auto;
   width: 100%;
 }
@@ -59,16 +80,32 @@ body { font-family: 'Inter', sans-serif; overflow: hidden; background: var(--bg-
 /* Form Styles */
 .form-input-premium, .form-select-premium, .form-textarea-premium {
   width: 100%;
-  padding: 12px;
-  border-radius: 12px;
-  border: 1px solid #e5e7eb;
-  background: #f9fafb;
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
   font-size: 14px;
   font-weight: 500;
+  color: var(--text-main);
   outline: none;
-  transition: all 0.2s;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.form-input-premium:focus { border-color: var(--primary); background: white; box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1); }
+.form-input-premium:focus, .form-select-premium:focus, .form-textarea-premium:focus { 
+  border-color: var(--primary); 
+  background: white; 
+  box-shadow: 0 0 0 4px var(--primary-soft);
+  transform: translateY(-1px);
+}
+
+.form-label-premium {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+}
 
 /* Layout Utilities */
 .flex { display: flex; }
@@ -78,18 +115,503 @@ body { font-family: 'Inter', sans-serif; overflow: hidden; background: var(--bg-
 .gap-2 { gap: 0.5rem; }
 .gap-3 { gap: 0.75rem; }
 .p-4 { padding: 1rem; }
-.p-5 { padding: 1.25rem; }
-.px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+.p-6 { padding: 1.5rem; }
 
 /* Scrollbar */
-.custom-scrollbar::-webkit-scrollbar { width: 4px; }
-.custom-scrollbar::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
+.custom-scrollbar::-webkit-scrollbar { width: 5px; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
 /* App Shell */
 .app-container { height: 100vh; width: 100vw; display: flex; flex-direction: column; }
-.app-header { height: 64px; background: white; border-bottom: 1px solid #eee; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; }
-.app-main { flex-grow: 1; position: relative; overflow: hidden; background: #eee; }
+.app-header { 
+  height: 72px; 
+  background: white; 
+  border-bottom: 1px solid #e2e8f0; 
+  display: flex; 
+  align-items: center; 
+  justify-content: space-between; 
+  padding: 0 32px; 
+  z-index: 50;
+}
+.app-main { flex-grow: 1; position: relative; overflow: hidden; }
 
 /* Animations */
-.animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+.animate-fade-in { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(20px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+/* Modal Styles */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+}
+
+.modal-container {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1001;
+  pointer-events: none;
+  padding: 24px;
+}
+
+.modal-content {
+  pointer-events: auto;
+  max-width: 480px;
+  width: 100%;
+  position: relative;
+}
+
+/* Property Form Specific Styles */
+.property-form-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: white;
+}
+
+.form-header {
+  position: relative;
+  padding: 32px;
+  background: #0f172a;
+  overflow: hidden;
+  color: white;
+}
+
+.header-decoration-1 {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 256px;
+  height: 256px;
+  background: rgba(59, 130, 246, 0.2);
+  border-radius: 50%;
+  filter: blur(64px);
+  margin-right: -128px;
+  margin-top: -128px;
+  pointer-events: none;
+}
+
+.header-decoration-2 {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 128px;
+  height: 128px;
+  background: rgba(148, 163, 184, 0.1);
+  border-radius: 50%;
+  filter: blur(32px);
+  margin-left: -64px;
+  margin-bottom: -64px;
+  pointer-events: none;
+}
+
+.header-content {
+  position: relative;
+  z-index: 10;
+}
+
+.header-badges {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.badge-primary {
+  background: var(--primary);
+  color: white;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.5);
+}
+
+.badge-dark {
+  background: #1e293b;
+  color: #cbd5e1;
+}
+
+.header-title {
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  margin-bottom: 8px;
+  line-height: 1.1;
+}
+
+.header-location {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #94a3b8;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.form-body {
+  flex-grow: 1;
+  overflow-y: auto;
+  max-height: 60vh;
+}
+
+/* Sections */
+.form-section {
+  background: white;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.section-trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.section-trigger:hover {
+  background: rgba(248, 250, 252, 0.8);
+}
+
+.section-trigger-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.section-icon-wrapper {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f1f5f9;
+  color: #94a3b8;
+  transition: all 0.3s;
+}
+
+.form-section.is-open .section-icon-wrapper {
+  background: var(--primary);
+  color: white;
+  box-shadow: 0 8px 16px var(--primary-soft);
+}
+
+.section-title-group {
+  text-align: left;
+}
+
+.section-title {
+  display: block;
+  font-size: 14px;
+  font-weight: 900;
+  color: #1e293b;
+  margin-bottom: 2px;
+}
+
+.section-subtitle {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.section-chevron {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8fafc;
+  color: #cbd5e1;
+  transition: all 0.3s;
+}
+
+.form-section.is-open .section-chevron {
+  background: #1e293b;
+  color: white;
+  transform: rotate(180deg);
+}
+
+.section-content {
+  padding: 0 24px 32px 24px;
+}
+
+/* Form Groups */
+.input-group {
+  margin-bottom: 20px;
+}
+.input-group:last-child { margin-bottom: 0; }
+
+.input-group.is-half {
+  flex: 1;
+}
+
+.flex-row {
+  display: flex;
+  gap: 16px;
+}
+
+/* Custom Controls */
+.floor-selector {
+  display: flex;
+  gap: 8px;
+}
+
+.floor-btn {
+  flex: 1;
+  padding: 10px 0;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 800;
+  border: none;
+  background: #f1f5f9;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.floor-btn:hover { background: #e2e8f0; }
+
+.floor-btn.active {
+  background: var(--primary);
+  color: white;
+  box-shadow: 0 4px 12px var(--primary-soft);
+}
+
+.mortgage-toggle-card {
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid #f1f5f9;
+  background: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all 0.3s;
+}
+
+.mortgage-toggle-card.is-active {
+  background: #fff7ed;
+  border-color: #ffedd5;
+}
+
+.toggle-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.toggle-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #e2e8f0;
+  color: #94a3b8;
+}
+
+.mortgage-toggle-card.is-active .toggle-icon {
+  background: #f97316;
+  color: white;
+}
+
+.toggle-text {
+  font-size: 14px;
+  font-weight: 700;
+  color: #475569;
+}
+
+.mortgage-details {
+  padding-top: 16px;
+}
+
+.form-input-premium.is-white { background: white; }
+.form-textarea-premium.is-muted { background: #f8fafc; min-height: 120px; }
+
+/* Switch Toggle */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+}
+
+.switch input { opacity: 0; width: 0; height: 0; }
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #cbd5e1;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px; width: 18px;
+  left: 3px; bottom: 3px;
+  background-color: white;
+  transition: .4s;
+}
+
+input:checked + .slider { background-color: #f97316; }
+input:checked + .slider:before { transform: translateX(20px); }
+.slider.round { border-radius: 34px; }
+.slider.round:before { border-radius: 50%; }
+
+/* Footer */
+.form-footer {
+  padding: 32px;
+  text-align: center;
+  background: #f8fafc;
+  border-top: 1px solid #f1f5f9;
+}
+
+.footer-label {
+  font-size: 10px;
+  font-weight: 900;
+  color: #cbd5e1;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  margin-bottom: 4px;
+}
+
+.footer-text {
+  font-size: 12px;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+/* Empty State */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+  text-align: center;
+}
+
+.empty-state-icon {
+  width: 64px;
+  height: 64px;
+  background: #f1f5f9;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #cbd5e1;
+  margin-bottom: 16px;
+}
+
+.empty-state-title {
+  font-size: 16px;
+  font-weight: 900;
+  color: #1e293b;
+  margin-bottom: 4px;
+}
+
+.empty-state-text {
+  font-size: 14px;
+  color: #64748b;
+}
+
+/* Compact Form Styles */
+.property-form-container.compact {
+  padding: 0;
+  background: white;
+}
+
+.compact-id-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  background: #f8fafc;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.compact-owner-info {
+  font-size: 14px;
+  font-weight: 800;
+  color: #1e293b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.form-body.compact {
+  padding: 20px;
+  max-height: 70vh;
+}
+
+.compact-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-label-premium.compact {
+  font-size: 10px;
+  margin-bottom: 4px;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.mortgage-toggle-card.compact {
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: #f8fafc;
+  margin-top: 4px;
+}
+
+.mortgage-details.compact {
+  margin-top: 12px;
+  padding: 12px;
+  background: #f1f5f9;
+  border-radius: 12px;
+}
+
+.switch.compact {
+  width: 36px;
+  height: 20px;
+}
+
+.switch.compact .slider:before {
+  height: 14px;
+  width: 14px;
+  left: 3px;
+  bottom: 3px;
+}
+
+input:checked + .switch.compact .slider:before {
+  transform: translateX(16px);
+}
+
+.form-textarea-premium.compact {
+  min-height: 80px;
+  font-size: 13px;
+}
