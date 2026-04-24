@@ -13,6 +13,13 @@
   --radius-md: 12px;
 }
 
+@media (max-width: 768px) {
+  :root {
+    --radius-xl: 20px;
+    --radius-lg: 12px;
+  }
+}
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { 
   font-family: 'Inter', system-ui, -apple-system, sans-serif; 
@@ -133,6 +140,14 @@ body {
   justify-content: space-between; 
   padding: 0 32px; 
   z-index: 50;
+  transition: all 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .app-header {
+    height: 64px;
+    padding: 0 16px;
+  }
 }
 .app-main { flex-grow: 1; position: relative; overflow: hidden; }
 
@@ -158,6 +173,20 @@ body {
   z-index: 1001;
   pointer-events: none;
   padding: 24px;
+  transition: all 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .modal-container {
+    padding: 0;
+    align-items: flex-end;
+  }
+  
+  .modal-content {
+    max-width: 100% !important;
+    border-radius: 24px 24px 0 0 !important;
+    box-shadow: 0 -10px 25px -5px rgba(0, 0, 0, 0.1) !important;
+  }
 }
 
 .modal-content {
@@ -173,6 +202,23 @@ body {
   flex-direction: column;
   height: 100%;
   background: white;
+}
+
+.hide-mobile {
+  display: inline-flex;
+}
+
+.show-mobile-flex {
+  display: none !important;
+}
+
+@media (max-width: 768px) {
+  .hide-mobile {
+    display: none !important;
+  }
+  .show-mobile-flex {
+    display: flex !important;
+  }
 }
 
 .form-header {
@@ -369,6 +415,13 @@ body {
 .flex-row {
   display: flex;
   gap: 16px;
+}
+
+@media (max-width: 480px) {
+  .flex-row {
+    flex-direction: column;
+    gap: 12px;
+  }
 }
 
 /* Custom Controls */
@@ -611,7 +664,48 @@ input:checked + .switch.compact .slider:before {
   transform: translateX(16px);
 }
 
+/* Filters Overlay */
+.filters-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid #eee;
+  padding: 24px;
+  z-index: 30;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  max-height: 80%;
+  overflow-y: auto;
+  transition: all 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .filters-overlay {
+    padding: 16px;
+    max-height: 60%;
+  }
+}
+
 .form-textarea-premium.compact {
   min-height: 80px;
   font-size: 13px;
+}
+
+/* Map Overlay Controls */
+.map-overlay-controls {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  z-index: 10;
+  transition: all 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .map-overlay-controls {
+    top: auto;
+    bottom: 110px; /* Above the attribution and potential bottom sheet */
+    right: 16px;
+  }
 }

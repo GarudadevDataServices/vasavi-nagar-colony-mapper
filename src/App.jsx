@@ -111,13 +111,13 @@ function App() {
       onDrop={handleDrop}
     >
       <header className="app-header flex items-center justify-between px-6 bg-white border-b shadow-sm">
-        <div className="flex items-center gap-3">
-          <div style={{ background: 'rgba(59, 130, 246, 0.1)', padding: '8px', borderRadius: '12px', color: '#3b82f6' }}>
+        <div className="flex items-center gap-2 md:gap-3">
+          <div className="hide-mobile" style={{ background: 'rgba(59, 130, 246, 0.1)', padding: '8px', borderRadius: '12px', color: '#3b82f6' }}>
             <MapIcon size={24} />
           </div>
           <div>
-            <h1 style={{ fontSize: '18px', fontWeight: 900, letterSpacing: '-0.02em' }}>VASAVI NAGAR</h1>
-            <span style={{ fontSize: '10px', fontWeight: 900, color: '#999', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Colony Mapper</span>
+            <h1 style={{ fontSize: '16px', mdFontSize: '18px', fontWeight: 900, letterSpacing: '-0.02em', lineHeight: 1 }}>VASAVI NAGAR</h1>
+            <span style={{ fontSize: '9px', fontWeight: 900, color: '#999', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Colony Mapper</span>
           </div>
         </div>
 
@@ -127,7 +127,7 @@ function App() {
             <button 
               onClick={() => setShowForm(true)}
               style={{
-                padding: '10px 16px',
+                padding: '8px 12px',
                 borderRadius: '12px',
                 background: '#eff6ff',
                 color: '#3b82f6',
@@ -136,11 +136,12 @@ function App() {
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px'
+                gap: '6px',
+                fontSize: '13px'
               }}
             >
               <Info size={18} />
-              Plot #{selectedFid}
+              <span className="hide-mobile">Plot #</span>{selectedFid}
             </button>
           )}
 
@@ -164,7 +165,7 @@ function App() {
           <label 
             onClick={handleFileImport}
             style={{ 
-              padding: '10px 20px', 
+              padding: '8px 12px', 
               borderRadius: '100px', 
               background: '#f3f4f6', 
               color: '#666', 
@@ -172,11 +173,12 @@ function App() {
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              gap: '8px'
+              gap: '6px',
+              fontSize: '13px'
             }}
           >
             <FileUp size={18} />
-            Import
+            <span className="hide-mobile">Import</span>
             <input type="file" accept=".geojson,application/json" onChange={handleFileImport} style={{ display: 'none' }} />
           </label>
 
@@ -184,7 +186,7 @@ function App() {
             onClick={saveFile} 
             disabled={!geoData}
             style={{
-              padding: '10px 20px',
+              padding: '8px 16px',
               borderRadius: '100px',
               background: '#3b82f6',
               color: 'white',
@@ -193,12 +195,13 @@ function App() {
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              gap: '8px',
+              gap: '6px',
+              fontSize: '13px',
               opacity: !geoData ? 0.5 : 1
             }}
           >
             <Save size={18} />
-            {fileHandle ? 'Save' : 'Export'}
+            <span className="hide-mobile">{fileHandle ? 'Save' : 'Export'}</span>
           </button>
         </div>
       </header>
@@ -216,26 +219,27 @@ function App() {
             />
 
             {/* Floating Toggle */}
-            <div style={{ position: 'absolute', top: '24px', right: '24px', zIndex: 10 }}>
+            <div className="map-overlay-controls">
               <button 
                 onClick={() => setBaseLayer(baseLayer === 'osm' ? 'satellite' : 'osm')}
                 style={{ 
                   display: 'flex', 
                   alignItems: 'center', 
                   gap: '8px', 
-                  padding: '12px 20px', 
+                  padding: '10px 16px', 
                   background: 'rgba(255,255,255,0.9)', 
                   backdropFilter: 'blur(8px)',
                   border: '1px solid #eee',
-                  borderRadius: '16px',
-                  fontSize: '12px',
+                  borderRadius: '12px',
+                  fontSize: '11px',
                   fontWeight: 'bold',
                   boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
                   cursor: 'pointer'
                 }}
               >
-                <Layers size={16} />
-                {baseLayer === 'osm' ? 'Satellite View' : 'Map View'}
+                <Layers size={14} />
+                <span className="hide-mobile">{baseLayer === 'osm' ? 'Satellite View' : 'Map View'}</span>
+                <span className="show-mobile-flex" style={{ display: 'none' }}>{baseLayer === 'osm' ? 'Sat' : 'Map'}</span>
               </button>
             </div>
           </>
@@ -262,7 +266,7 @@ function App() {
 
         {/* Filters Overlay */}
         {showFilters && geoData && (
-          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(10px)', borderBottom: '1px solid #eee', padding: '24px', zIndex: 30, boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}>
+          <div className="filters-overlay">
              <div className="flex items-center justify-between" style={{ marginBottom: '16px' }}>
               <h3 style={{ fontSize: '12px', fontWeight: 900, color: '#999', textTransform: 'uppercase' }}>Filter Plots</h3>
               <div className="flex gap-1" style={{ background: '#eee', padding: '4px', borderRadius: '8px' }}>

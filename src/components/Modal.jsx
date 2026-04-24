@@ -22,18 +22,19 @@ const Modal = ({ isOpen, onClose, children, title }) => {
           {/* Modal Container */}
           <div className="modal-container">
             <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              initial={{ opacity: 0, scale: 0.9, y: 40 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              exit={{ opacity: 0, scale: 0.9, y: 40 }}
+              transition={{ type: 'spring', damping: 30, stiffness: 400 }}
               className="modern-card modal-content"
+              style={{ maxHeight: '90vh' }}
             >
               <div className="modern-card-header">
                 <button onClick={onClose} className="modern-close-btn">
                   <X size={20} />
                 </button>
               </div>
-              <div className="modern-card-content custom-scrollbar">
+              <div className="modern-card-content custom-scrollbar" style={{ flexGrow: 1 }}>
                 {children}
               </div>
             </motion.div>
