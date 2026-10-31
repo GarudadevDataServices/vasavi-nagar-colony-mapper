@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { 
   Map as MapIcon, 
   Layers, 
@@ -7,7 +7,8 @@ import {
   Save,
   X,
   Upload,
-  Info
+  Info,
+  RotateCcw
 } from 'lucide-react';
 import MapView from './components/MapView';
 import Modal from './components/Modal';
@@ -25,6 +26,7 @@ function App() {
     updateFeature,
     loadFromFile,
     saveFile,
+    resetToDefault,
     fileHandle,
     filteredData,
     setFilters,
@@ -35,6 +37,17 @@ function App() {
   const [showFilters, setShowFilters] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [showMortgageBorders, setShowMortgageBorders] = useState(() => {
+    return localStorage.getItem('vasavi_show_mortgage_borders') !== 'false';
+  });
+
+  const toggleMortgageBorders = () => {
+    setShowMortgageBorders(prev => {
+      const next = !prev;
+      localStorage.setItem('vasavi_show_mortgage_borders', String(next));
+      return next;
+    });
+  };
 
   const handlePlotClick = (fid) => {
     setSelectedFid(fid);
@@ -110,18 +123,18 @@ function App() {
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
     >
-      <header className="app-header flex items-center justify-between px-6 bg-white border-b shadow-sm">
+      <header className="app-header flex items-center justify-between px-4 md:px-6 bg-white border-b shadow-sm" style={{ minHeight: '64px', gap: '8px' }}>
         <div className="flex items-center gap-2 md:gap-3">
           <div className="hide-mobile" style={{ background: 'rgba(59, 130, 246, 0.1)', padding: '8px', borderRadius: '12px', color: '#3b82f6' }}>
-            <MapIcon size={24} />
+            <MapIcon size={22} />
           </div>
           <div>
-            <h1 style={{ fontSize: '16px', mdFontSize: '18px', fontWeight: 900, letterSpacing: '-0.02em', lineHeight: 1 }}>VASAVI NAGAR</h1>
+            <h1 style={{ fontSize: '15px', mdFontSize: '18px', fontWeight: 900, letterSpacing: '-0.02em', lineHeight: 1 }}>VASAVI NAGAR</h1>
             <span style={{ fontSize: '9px', fontWeight: 900, color: '#999', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Colony Mapper</span>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 md:gap-3">
           {/* Form Toggle (if plot selected) */}
           {selectedFid && (
             <button 
@@ -151,15 +164,47 @@ function App() {
             style={{ 
               padding: '10px', 
               borderRadius: '12px', 
-              background: showFilters ? '#3b82f6' : '#f3f4f6',
-              color: showFilters ? 'white' : '#666',
+              background: showFilters || (filters.rules && filters.rules.length > 0) ? '#3b82f6' : '#f3f4f6',
+              color: showFilters || (filters.rules && filters.rules.length > 0) ? 'white' : '#666',
               border: 'none',
               cursor: 'pointer',
-              opacity: !geoData ? 0.3 : 1
+              opacity: !geoData ? 0.3 : 1,
+              position: 'relative'
             }}
             title="Filter Plots"
           >
-            <Filter size={20} />
+            <Filter size={18} />
+            {filters.rules && filters.rules.length > 0 && (
+              <span style={{ 
+                position: 'absolute', 
+                top: '-3px', 
+                right: '-3px', 
+                width: '8px', 
+                height: '8px', 
+                borderRadius: '50%', 
+                background: '#ea580c' 
+              }} />
+            )}
+          </button>
+
+          {/* Reload / Reset to vasavi_map.geojson */}
+          <button
+            onClick={() => {
+              if (window.confirm('Reload map data from vasavi_map.geojson?')) {
+                resetToDefault();
+              }
+            }}
+            style={{
+              padding: '10px',
+              borderRadius: '12px',
+              background: '#f3f4f6',
+              color: '#666',
+              border: 'none',
+              cursor: 'pointer'
+            }}
+            title="Reload Default Map (vasavi_map.geojson)"
+          >
+            <RotateCcw size={18} />
           </button>
 
           <label 
@@ -214,12 +259,13 @@ function App() {
               selectedFid={selectedFid}
               onPlotClick={handlePlotClick}
               baseLayer={baseLayer}
+              showMortgageBorders={showMortgageBorders}
               updateFeature={updateFeature}
               selectedFeature={selectedFeature}
             />
 
-            {/* Floating Toggle */}
-            <div className="map-overlay-controls">
+            {/* Floating Controls */}
+            <div className="map-overlay-controls" style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'flex-end' }}>
               <button 
                 onClick={() => setBaseLayer(baseLayer === 'osm' ? 'satellite' : 'osm')}
                 style={{ 
@@ -227,7 +273,7 @@ function App() {
                   alignItems: 'center', 
                   gap: '8px', 
                   padding: '10px 16px', 
-                  background: 'rgba(255,255,255,0.9)', 
+                  background: 'rgba(255,255,255,0.95)', 
                   backdropFilter: 'blur(8px)',
                   border: '1px solid #eee',
                   borderRadius: '12px',
@@ -240,6 +286,38 @@ function App() {
                 <Layers size={14} />
                 <span className="hide-mobile">{baseLayer === 'osm' ? 'Satellite View' : 'Map View'}</span>
                 <span className="show-mobile-flex" style={{ display: 'none' }}>{baseLayer === 'osm' ? 'Sat' : 'Map'}</span>
+              </button>
+
+              <button 
+                onClick={toggleMortgageBorders}
+                style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '8px', 
+                  padding: '10px 16px', 
+                  background: showMortgageBorders ? 'rgba(255, 241, 242, 0.95)' : 'rgba(255, 255, 255, 0.95)', 
+                  backdropFilter: 'blur(8px)',
+                  border: showMortgageBorders ? '1px solid #fecdd3' : '1px solid #eee',
+                  borderRadius: '12px', 
+                  fontSize: '11px', 
+                  fontWeight: 'bold', 
+                  color: showMortgageBorders ? '#e11d48' : '#64748b',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.1)', 
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+                title={showMortgageBorders ? 'Turn OFF red dotted border for mortgaged plots' : 'Turn ON red dotted border for mortgaged plots'}
+              >
+                <div style={{
+                  width: '12px',
+                  height: '12px',
+                  borderRadius: '3px',
+                  border: '2px dashed #e11d48',
+                  background: showMortgageBorders ? '#ffe4e6' : 'transparent',
+                  opacity: showMortgageBorders ? 1 : 0.4
+                }} />
+                <span className="hide-mobile">Mortgage Borders: {showMortgageBorders ? 'ON' : 'OFF'}</span>
+                <span className="show-mobile-flex" style={{ display: 'none' }}>Mortgage: {showMortgageBorders ? 'ON' : 'OFF'}</span>
               </button>
             </div>
           </>
@@ -268,64 +346,130 @@ function App() {
         {showFilters && geoData && (
           <div className="filters-overlay">
              <div className="flex items-center justify-between" style={{ marginBottom: '16px' }}>
-              <h3 style={{ fontSize: '12px', fontWeight: 900, color: '#999', textTransform: 'uppercase' }}>Filter Plots</h3>
-              <div className="flex gap-1" style={{ background: '#eee', padding: '4px', borderRadius: '8px' }}>
-                {['AND', 'OR'].map(l => (
-                  <button 
-                    key={l}
-                    onClick={() => setFilters({ ...filters, logic: l })}
-                    style={{ 
-                      padding: '4px 12px', 
-                      borderRadius: '6px', 
-                      fontSize: '10px', 
-                      fontWeight: 'bold',
-                      background: filters.logic === l ? 'white' : 'transparent',
-                      border: 'none',
-                      boxShadow: filters.logic === l ? '0 2px 4px rgba(0,0,0,0.1)' : 'none',
-                      color: filters.logic === l ? '#3b82f6' : '#999',
-                      cursor: 'pointer'
-                    }}
-                  >{l}</button>
-                ))}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <h3 style={{ fontSize: '12px', fontWeight: 900, color: '#334155', textTransform: 'uppercase', margin: 0 }}>Filter Plots</h3>
+                {filteredData && (
+                  <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>
+                    ({filteredData.features.length} of {geoData.features.length} shown)
+                  </span>
+                )}
+              </div>
+              <div className="flex gap-2 items-center">
+                <button
+                  onClick={() => setFilters({ logic: 'AND', rules: [] })}
+                  style={{
+                    padding: '4px 10px',
+                    borderRadius: '6px',
+                    fontSize: '11px',
+                    fontWeight: 'bold',
+                    background: '#f1f5f9',
+                    border: 'none',
+                    color: '#64748b',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Clear All
+                </button>
+                <div className="flex gap-1" style={{ background: '#eee', padding: '4px', borderRadius: '8px' }}>
+                  {['AND', 'OR'].map(l => (
+                    <button 
+                      key={l}
+                      onClick={() => setFilters({ ...filters, logic: l })}
+                      style={{ 
+                        padding: '4px 12px', 
+                        borderRadius: '6px', 
+                        fontSize: '10px', 
+                        fontWeight: 'bold',
+                        background: filters.logic === l ? 'white' : 'transparent',
+                        border: 'none',
+                        boxShadow: filters.logic === l ? '0 2px 4px rgba(0,0,0,0.1)' : 'none',
+                        color: filters.logic === l ? '#3b82f6' : '#999',
+                        cursor: 'pointer'
+                      }}
+                    >{l}</button>
+                  ))}
+                </div>
               </div>
             </div>
 
             <div className="flex flex-wrap gap-3">
               {filters.rules.map((rule, idx) => (
-                <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#f9fafb', border: '1px solid #eee', padding: '8px 12px', borderRadius: '12px' }}>
+                <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#f9fafb', border: '1px solid #cbd5e1', padding: '8px 12px', borderRadius: '12px', flexWrap: 'wrap' }}>
+                  {/* Field Selector */}
                   <select 
                     value={rule.field} 
                     onChange={(e) => {
-                      const nr = [...filters.rules]; nr[idx].field = e.target.value; setFilters({...filters, rules: nr});
+                      const nr = [...filters.rules]; 
+                      nr[idx].field = e.target.value; 
+                      setFilters({...filters, rules: nr});
                     }}
-                    style={{ background: 'transparent', border: 'none', fontWeight: 'bold', fontSize: '12px' }}
+                    style={{ background: 'transparent', border: 'none', fontWeight: 'bold', fontSize: '12px', color: '#0f172a' }}
                   >
-                    <option value="owner_name">Owner</option>
+                    <option value="owner_name">Owner Name</option>
+                    <option value="is_mortgaged">Mortgaged</option>
+                    <option value="mortgage_amount">Mortgage Amount (₹)</option>
+                    <option value="mortgage_bank">Mortgage Bank</option>
+                    <option value="ec_timeline">EC Notes / Timeline</option>
                     <option value="land_status">Status</option>
+                    <option value="nature_of_land">Land Nature</option>
                     <option value="house_condition">Condition</option>
+                    <option value="reg_doc_no">Reg Doc #</option>
+                    <option value="electricity_no">Electricity #</option>
+                    <option value="surveyor_notes">Surveyor Notes</option>
+                    <option value="fid">Plot # (FID)</option>
                   </select>
-                  <input 
-                    type="text" 
-                    value={rule.value} 
+
+                  {/* Operator Selector */}
+                  <select
+                    value={rule.operator || 'contains'}
                     onChange={(e) => {
-                      const nr = [...filters.rules]; nr[idx].value = e.target.value; setFilters({...filters, rules: nr});
+                      const nr = [...filters.rules];
+                      nr[idx].operator = e.target.value;
+                      setFilters({...filters, rules: nr});
                     }}
-                    style={{ width: '100px', border: '1px solid #ddd', borderRadius: '4px', padding: '2px 6px', fontSize: '12px' }}
-                    placeholder="..."
-                  />
+                    style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '4px', fontSize: '11px', padding: '2px 4px', fontWeight: 600 }}
+                  >
+                    <option value="contains">contains</option>
+                    <option value="equals">equals</option>
+                    <option value="gt">&gt; (greater than)</option>
+                    <option value="lt">&lt; (less than)</option>
+                    <option value="is_not_empty">has value</option>
+                    <option value="is_empty">is empty</option>
+                  </select>
+
+                  {/* Value Input (hidden if is_empty or is_not_empty) */}
+                  {rule.operator !== 'is_empty' && rule.operator !== 'is_not_empty' && (
+                    <input 
+                      type="text" 
+                      value={rule.value} 
+                      onChange={(e) => {
+                        const nr = [...filters.rules]; 
+                        nr[idx].value = e.target.value; 
+                        setFilters({...filters, rules: nr});
+                      }}
+                      style={{ width: '120px', border: '1px solid #cbd5e1', borderRadius: '4px', padding: '4px 6px', fontSize: '12px' }}
+                      placeholder="Value..."
+                    />
+                  )}
+
                   <button 
                     onClick={() => setFilters({...filters, rules: filters.rules.filter((_,i) => i !== idx)})}
-                    style={{ background: 'none', border: 'none', color: '#ff4d4d', cursor: 'pointer' }}
+                    style={{ background: 'none', border: 'none', color: '#ff4d4d', cursor: 'pointer', padding: '2px' }}
+                    title="Remove rule"
                   >
                     <X size={14} />
                   </button>
                 </div>
               ))}
+
               <button 
-                onClick={() => setFilters({...filters, rules: [...filters.rules, {field:'owner_name', operator:'contains', value:''}]})}
-                style={{ padding: '8px 16px', border: '2px dashed #ccc', borderRadius: '12px', color: '#999', fontSize: '12px', fontWeight: 'bold', background: 'none', cursor: 'pointer' }}
+                onClick={() => setFilters({
+                  ...filters, 
+                  rules: [...filters.rules, { field: 'owner_name', operator: 'contains', value: '' }]
+                })}
+                style={{ padding: '8px 16px', border: '2px dashed #ccc', borderRadius: '12px', color: '#64748b', fontSize: '12px', fontWeight: 'bold', background: 'none', cursor: 'pointer' }}
               >
-                + Add Rule
+                + Add Filter Rule
               </button>
             </div>
           </div>

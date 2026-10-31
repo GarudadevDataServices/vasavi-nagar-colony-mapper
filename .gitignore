@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# GeoJSON data files
+vasavi_map.geojson
+vasavi_nagar_colony.geojson
+

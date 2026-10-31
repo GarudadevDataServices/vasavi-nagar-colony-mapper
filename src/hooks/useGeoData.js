@@ -42,7 +42,7 @@ export function useGeoData() {
     rules: []
   });
 
-  // Load initial data from LocalStorage or FileHandle
+  // Load initial data from LocalStorage, FileHandle, or default vasavi_map.geojson
   useEffect(() => {
     const init = async () => {
       try {
@@ -50,7 +50,6 @@ export function useGeoData() {
         if ('showOpenFilePicker' in window) {
           const savedHandle = await getHandle();
           if (savedHandle) {
-            // Check if we still have permission
             const status = await savedHandle.queryPermission({ mode: 'readwrite' });
             if (status === 'granted') {
               setFileHandle(savedHandle);
@@ -59,10 +58,42 @@ export function useGeoData() {
           }
         }
 
-        // 2. Load the actual data from LocalStorage
+        // 2. Load the actual data from LocalStorage or default to vasavi_map.geojson
         const saved = localStorage.getItem(STORAGE_KEY);
+        const dataVersion = localStorage.getItem('vasavi_data_version');
+        
+        let loadedFromStorage = false;
         if (saved) {
-          setGeoData(JSON.parse(saved));
+          try {
+            const parsed = JSON.parse(saved);
+            const hasRichData = parsed.features?.some(f => f.properties?.mortgage_amount || f.properties?.ec_timeline);
+            if (hasRichData && dataVersion === 'v2_mortgage_ec') {
+              setGeoData(parsed);
+              loadedFromStorage = true;
+            }
+          } catch (e) {
+            console.error('Error parsing stored geo data:', e);
+          }
+        }
+
+        if (!loadedFromStorage) {
+          try {
+            const res = await fetch('./vasavi_map.geojson');
+            if (res.ok) {
+              const data = await res.json();
+              if (data && data.type === 'FeatureCollection') {
+                setGeoData(data);
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+                localStorage.setItem('vasavi_data_version', 'v2_mortgage_ec');
+                setOriginalFileName('vasavi_map.geojson');
+              }
+            } else if (saved) {
+              setGeoData(JSON.parse(saved));
+            }
+          } catch (fetchErr) {
+            console.warn('Could not load vasavi_map.geojson via fetch:', fetchErr);
+            if (saved) setGeoData(JSON.parse(saved));
+          }
         }
       } catch (err) {
         console.error('Initialization error:', err);
@@ -151,6 +182,30 @@ export function useGeoData() {
     }
   }, [geoData, fileHandle, originalFileName]);
 
+  const resetToDefault = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await fetch('./vasavi_map.geojson');
+      if (res.ok) {
+        const data = await res.json();
+        setGeoData(data);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        localStorage.setItem('vasavi_data_version', 'v2_mortgage_ec');
+        setOriginalFileName('vasavi_map.geojson');
+        setSelectedFid(null);
+        setFileHandle(null);
+        alert('Map data reloaded successfully from vasavi_map.geojson!');
+      } else {
+        alert('Could not reload vasavi_map.geojson (HTTP ' + res.status + ')');
+      }
+    } catch (err) {
+      console.error('Reset error:', err);
+      alert('Failed to reload default map.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   const updateFeature = useCallback((fid, newProps) => {
     setGeoData(prev => {
       if (!prev) return null;
@@ -179,13 +234,21 @@ export function useGeoData() {
         const target = rule.value;
 
         switch (rule.operator) {
-          case 'equals': return String(val) === String(target);
-          case 'not_equals': return String(val) !== String(target);
-          case 'contains': return String(val).toLowerCase().includes(String(target).toLowerCase());
-          case 'is_empty': return !val || val === '';
-          case 'is_not_empty': return !!val && val !== '';
-          case 'gt': return Number(val) > Number(target);
-          case 'lt': return Number(val) < Number(target);
+          case 'equals': 
+            if (typeof val === 'boolean') return String(val).toLowerCase() === String(target).toLowerCase();
+            return String(val || '').toLowerCase() === String(target || '').toLowerCase();
+          case 'not_equals': 
+            return String(val || '').toLowerCase() !== String(target || '').toLowerCase();
+          case 'contains': 
+            return String(val || '').toLowerCase().includes(String(target || '').toLowerCase());
+          case 'is_empty': 
+            return val === null || val === undefined || val === '';
+          case 'is_not_empty': 
+            return val !== null && val !== undefined && val !== '';
+          case 'gt': 
+            return Number(val || 0) > Number(target || 0);
+          case 'lt': 
+            return Number(val || 0) < Number(target || 0);
           default: return true;
         }
       });
@@ -207,6 +270,7 @@ export function useGeoData() {
     updateFeature,
     loadFromFile,
     saveFile,
+    resetToDefault,
     fileHandle,
     filteredData,
     setFilters,

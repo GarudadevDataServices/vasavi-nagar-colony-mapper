@@ -191,7 +191,7 @@ body {
 
 .modal-content {
   pointer-events: auto;
-  max-width: 480px;
+  max-width: 540px;
   width: 100%;
   position: relative;
 }
